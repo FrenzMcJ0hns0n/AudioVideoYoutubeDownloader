@@ -117,4 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Help_AudioBitrate" xml:space="preserve">
+    <value>Sélection de la qualité audio :
+- 128kbps : idéal pour du contenu exclusivement vocal (radio, podcast, etc.)
+- 256kbps : qualité standard pour de la musique
+- 320kbps : qualité maximale
+
+Attention, plus la valeur est haute, plus le fichier .mp3 sera volumineux.</value>
+  </data>
+  <data name="Help_RetrieveContent" xml:space="preserve">
+    <value>Question, suggestion, critique ?
+francois.mazoyer@supinfo.com</value>
+  </data>
 </root>

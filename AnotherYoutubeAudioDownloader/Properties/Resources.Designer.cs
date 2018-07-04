@@ -59,5 +59,29 @@ namespace AnotherYoutubeAudioDownloader.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Sélection de la qualité audio :
+        ///- 128kbps : idéal pour du contenu exclusivement vocal (radio, podcast, etc.)
+        ///- 256kbps : qualité standard pour de la musique
+        ///- 320kbps : qualité maximale
+        ///
+        ///Attention, plus la valeur est haute, plus le fichier .mp3 sera volumineux..
+        /// </summary>
+        internal static string Help_AudioBitrate {
+            get {
+                return ResourceManager.GetString("Help_AudioBitrate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Question, suggestion, critique ?
+        ///francois.mazoyer@supinfo.com.
+        /// </summary>
+        internal static string Help_RetrieveContent {
+            get {
+                return ResourceManager.GetString("Help_RetrieveContent", resourceCulture);
+            }
+        }
     }
 }

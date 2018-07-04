@@ -10,67 +10,6 @@ namespace AnotherYoutubeAudioDownloader
 
 
 
-        // TEST DE RÉCUPÉRATION DE L'OUTPUT DE LA CLI
-        // Pour récupérer le nom du fichier, grâce à l'expression '%(title)s.%(ext)s' de youtube-dl
-        // Et accessoirement pour obtenir la fin du téléchargement (= début de l'extraction audio)
-        // Infructueux. Et trop chiant.
-
-        //public static string SetCLIInput_From(string url)
-        //{
-        //    string rootDirPath = Properties.Settings.Default["RootDirPath"].ToString();
-        //    string youtubeDlDir = String.Format("{0}\\{1}", rootDirPath, "Resources\\youtube-dl"); //TODO : put in c# settings
-
-
-        //    string input_test = String.Format(
-        //        "/c for /f \"delims=\" %%a in ('\"{0}\\youtube-dl.exe\" --get-filename -o \"%(title)s.%(ext)s\" {1}') do @set my_variable=%%a",
-        //        youtubeDlDir,
-        //        url
-        //    );
-
-
-        //    // "/c for /f \"delims=\" %%a in ('\"{0}\\youtube-dl.exe\" --get-filename -o \"%(title)s.%(ext)s\" {1}') do @set my_variable=%%a"
-
-
-        //    string input = String.Format(
-        //        "/c start \"\" \"{0}\\youtube-dl.exe\" --get-filename -o %(title)s.%(ext)s {1}", 
-        //        youtubeDlDir,
-        //        url
-        //    );
-
-        //    return input_test;
-        //}
-
-
-
-
-        //public static string GetCLIOutput_With(string input)
-        //{
-
-        //    Process process = new Process
-        //    {
-        //        StartInfo = new ProcessStartInfo("cmd.exe")
-        //        {
-        //            UseShellExecute = false,
-        //            CreateNoWindow = true,
-        //            RedirectStandardOutput = true,
-        //            Arguments = input
-        //        }
-        //    };
-
-        //    process.Start();
-        //    string output = process.StandardOutput.ReadToEnd();
-        //    //while (!proc.StandardOutput.EndOfStream)
-        //    //{
-        //    //    string line = proc.StandardOutput.ReadLine();
-        //    //    output += line;
-        //    //}
-
-        //    return output;
-        //}
-
-
-
-
         public static string VideoDownload_BuildCLI_From(string url)
         {
             string commandLine = "";
@@ -78,13 +17,14 @@ namespace AnotherYoutubeAudioDownloader
             try
             {
                 string rootDirPath = Properties.Settings.Default["RootDirPath"].ToString();
+                string downloadedDir = rootDirPath + "\\Downloaded";
                 string youtubeDlDir = rootDirPath + "\\resources\\youtube-dl";
 
                 //string
                 commandLine = String.Format(
-                    "/c start \"\" \"{0}\\youtube-dl.exe\" -o {1}\\Downloaded\\InProgress\\%(title)s.%(ext)s {2}",
+                    "/c start \"\" \"{0}\\youtube-dl.exe\" -o {1}\\InProgress\\%(title)s.%(ext)s {2}",
                     youtubeDlDir,
-                    rootDirPath,
+                    downloadedDir,
                     url
                 );
 
@@ -105,14 +45,14 @@ namespace AnotherYoutubeAudioDownloader
         {
             try
             {
-                ProcessStartInfo psi = new ProcessStartInfo("cmd.exe")
+                ProcessStartInfo cmd = new ProcessStartInfo("cmd.exe")
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     Arguments = cli
                 };
 
-                Process.Start(psi);
+                Process.Start(cmd);
             }
             catch (Exception ex)
             {
@@ -131,7 +71,7 @@ namespace AnotherYoutubeAudioDownloader
             {
                 FileInfo fileInfo = new FileInfo(filepath);
                 string filename = fileInfo.Name;
-                string filename_noExt = filename.Substring(0, filename.Length - fileInfo.Extension.Length);
+                string filename_noExtension = filename.Substring(0, filename.Length - fileInfo.Extension.Length);
                 string ffmpegDir = Properties.Settings.Default["RootDirPath"].ToString() + "\\resources\\ffmpeg";
 
                 //string
@@ -141,7 +81,7 @@ namespace AnotherYoutubeAudioDownloader
                     filepath,
                     Properties.Settings.Default["AudioBitrate"].ToString(),
                     Properties.Settings.Default["RootDirPath"].ToString(),
-                    filename_noExt
+                    filename_noExtension
                 );
 
                 IOMethods.WriteToLog("Command line (audio) :\n" + commandLine); // incomplete in v1.0

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -16,6 +18,7 @@ namespace AnotherYoutubeAudioDownloader
         {
             InitializeComponent();
 
+            DisplayHelpToolTip();
             LoadSettings();
         }
 
@@ -24,52 +27,127 @@ namespace AnotherYoutubeAudioDownloader
 
         #region GUI-related methods
 
+        private void DisplayErrorMessage(string content)
+        {
+            MessageBox.Show("Erreur : " + content);
+        }
+
+        private void DisplayHelpToolTip()
+        {
+            Label_Help.ToolTip = 
+                Properties.Resources.Help_AudioBitrate + 
+                "\n\n----------\n\n" + 
+                Properties.Resources.Help_RetrieveContent;
+        }
+        
+        private void HandleDrop(DragEventArgs e)
+        {
+            try
+            {
+                if (IOMethods.DropType_isFile(e))
+                {
+                    FileInfo fileInfo = new FileInfo(((string[])e.Data.GetData(DataFormats.FileDrop))[0]);
+                    if (IOMethods.ValidateFileExtension(fileInfo))
+                    {
+                        TextBox_url.Text = fileInfo.FullName;
+                        return;
+                    }
+                    DisplayErrorMessage("Fichier non supporté.");
+                    return;
+                }
+
+                if (IOMethods.DropType_isURL(e))
+                {
+                    TextBox_url.Text = e.Data.GetData(DataFormats.UnicodeText).ToString();
+                    return;
+                }
+                DisplayErrorMessage("Doit être spécifié l'URL d'une vidéo Youtube ou le lien complet vers un fichier vidéo.");
+            }
+            catch (Exception ex)
+            {
+                IOMethods.WriteToLog(DateTime.Now + " -> Erreur dans HandleDrop(DragEventArgs e). Exception =\n" + ex.ToString());
+            }
+        }
+
         private void LoadSettings()
         {
             try
             {
+                Properties.Settings.Default["RootDirPath"] = IOMethods.GetRootDirPath();
+
                 bool isReadOnly = Convert.ToBoolean(Properties.Settings.Default["TextBox_readonly"]);
                 SetTextBoxReadOnly(isReadOnly);
 
-                Properties.Settings.Default["RootDirPath"] = IOMethods.GetRootDirPath();
-
                 int audioBitrate = Convert.ToInt32(Properties.Settings.Default["AudioBitrate"]);
-                if (audioBitrate != 0)
-                    SetAudioQuality(audioBitrate);
+                SetAudioQuality(audioBitrate);
             }
             catch (Exception ex)
             {
                 IOMethods.WriteToLog(DateTime.Now + " -> Erreur dans LoadSettings(). Exception =\n" + ex.ToString());
             }
-            
+
         }
 
-        private void HandleStringDrop(DragEventArgs e)
+        private void DownloadAndExtract()
         {
-            try
+            // 1. Download video
+            string video_builtCli = CoreMethods.VideoDownload_BuildCLI_From(TextBox_url.Text);
+            CoreMethods.ExecuteCLI_With(video_builtCli);
+
+            // 2. Handle "InProgress" file
+            string inProgressDir = Properties.Settings.Default["RootDirPath"].ToString() + "\\Downloaded\\InProgress";
+            string filepath = "";
+            FileInfo fileInfo;
+
+            //TODO : Improve
+            while (filepath == "") // Wait for the file to be fully downloaded (extension = ".part" during download)
             {
-                string drop = e.Data.GetData(DataFormats.UnicodeText).ToString(); // failure => catch
-                TextBox_url.Text = null;
-                TextBox_url.Text = drop;
+                try
+                {
+                    filepath = Directory.GetFiles(inProgressDir)[0]; // fails at first, because file may not have been created yet
+
+                    fileInfo = new FileInfo(filepath);
+                    if (fileInfo.Extension.ToLowerInvariant() == ".part")
+                        continue;
+
+                    filepath = fileInfo.FullName; // while break
+                }
+                catch
+                {
+                    continue;
+                }
             }
-            catch
-            {
-                DisplayErrorMessage("Ne peut être glissé/déposé que du texte");
-            }
+            
+            // 3. Move downloaded video
+            fileInfo = new FileInfo(filepath);
+            string filename = fileInfo.Name;
+
+            string videoDestination = Properties.Settings.Default["RootDirPath"].ToString() + "\\Downloaded\\Video\\" + filename;
+            File.Move(filepath, videoDestination);
+            
+            // 4. Extract audio
+            string audio_builtCli = CoreMethods.AudioExtraction_BuildCLI_From(videoDestination);
+            CoreMethods.ExecuteCLI_With(audio_builtCli);
         }
 
         private void SetAudioQuality(int bitrate)
         {
             try
             {
-                if (bitrate == 128000)
-                    RadioButton_mp3_128.IsChecked = true;
-
-                else if (bitrate == 256000)
-                    RadioButton_mp3_256.IsChecked = true;
-
-                else
-                    RadioButton_mp3_320.IsChecked = true;
+                switch (bitrate)
+                {
+                    case 128000:
+                        RadioButton_mp3_128.IsChecked = true;
+                        break;
+                    case 256000:
+                        RadioButton_mp3_256.IsChecked = true;
+                        break;
+                    case 320000:
+                        RadioButton_mp3_320.IsChecked = true;
+                        break;
+                    default:
+                        return;
+                }
             }
             catch (Exception ex)
             {
@@ -77,11 +155,11 @@ namespace AnotherYoutubeAudioDownloader
             }
         }
 
-        private void SetTextBoxReadOnly(bool flag)
+        private void SetTextBoxReadOnly(bool readOnly)
         {
             try
             {
-                if (flag)
+                if (readOnly)
                 {
                     TextBox_url.IsReadOnly = true;
                     TextBox_url.Cursor = Cursors.Arrow;
@@ -100,17 +178,18 @@ namespace AnotherYoutubeAudioDownloader
             }
         }
 
-        private void DisplayErrorMessage(string content)
-        {
-            MessageBox.Show("Erreur : " + content);
-        }
-
         #endregion
 
 
 
 
         #region GUI events
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                DragMove();
+        }
 
         private void TextBox_url_PreviewDragOver(object sender, DragEventArgs e)
         {
@@ -119,7 +198,7 @@ namespace AnotherYoutubeAudioDownloader
 
         private void TextBox_url_Drop(object sender, DragEventArgs e)
         {
-            HandleStringDrop(e);
+            HandleDrop(e);
         }
 
         private void Button_Reset_Click(object sender, RoutedEventArgs e)
@@ -210,78 +289,58 @@ namespace AnotherYoutubeAudioDownloader
         //        ));
         //}
 
+        private void Button_ToAudioFolder_Click(object sender, RoutedEventArgs e)
+        {
+            IOMethods.OpenFolder("Audio");
+        }
+
+        private void Button_ToVideoFolder_Click(object sender, RoutedEventArgs e)
+        {
+            IOMethods.OpenFolder("Video");
+        }
+
         private void Button_Download_Click(object sender, RoutedEventArgs e)
         {
-            //TODO ? Check URL validity here ? In case user write it manually
-            if (TextBox_url.Text == "")
+            string textBoxInput = TextBox_url.Text;
+
+
+            if (textBoxInput == "")
             {
-                DisplayErrorMessage("Aucune URL n'est spécifiée");
+                DisplayErrorMessage("Pas d'URL ou de fichier vidéo spécifié");
                 return;
             }
 
-            //TODO : chunk into several functions ?
 
-            // 1. Download video --------------------------------------------------
-
-            string built_cli = CoreMethods.VideoDownload_BuildCLI_From(TextBox_url.Text);
-            CoreMethods.ExecuteCLI_With(built_cli);
-
-
-
-            // 2. Handle "InProgress" file --------------------------------------------------
-
-            string inProgressDir = Properties.Settings.Default["RootDirPath"].ToString() + "\\Downloaded\\InProgress";
-            string filepath = "";
-            FileInfo fileInfo;
-
-
-
-            while (true) // Wait for the file to be fully downloaded (extension = ".part" during download)
+            if (File.Exists(textBoxInput))
             {
-                try
+                if (IOMethods.ValidateFileExtension(new FileInfo(textBoxInput)))
                 {
-                    filepath = Directory.GetFiles(inProgressDir)[0]; // fails at first, because download hasn't been created yet
-                    fileInfo = new FileInfo(filepath);
-
-                    if (fileInfo.Extension.ToLowerInvariant() == ".part")
-                    {
-                        continue;
-                    }
-                    
-                    filepath = fileInfo.FullName;
-                    break;
+                    // It's a video file and it is supported : call audio extraction
+                    string audio_builtCli = CoreMethods.AudioExtraction_BuildCLI_From(textBoxInput);
+                    CoreMethods.ExecuteCLI_With(audio_builtCli);
+                    return;
                 }
-                catch
-                {
-                    continue;
-                }
-                    
+                DisplayErrorMessage("Le fichier spécifié n'est pas d'un format supporté");
+                return;
             }
             
-            //if (CheckBox_KeepSourceVideo.IsChecked == true) // handle it elsewhere ! -> Prop & settings
-            //{
-            fileInfo = new FileInfo(filepath);
-            string filename = fileInfo.Name;
-            string destination = Properties.Settings.Default["RootDirPath"].ToString() + "\\Downloaded\\Video\\" + filename;
-
-            File.Move(filepath, destination);
-            //}
-
-            
-
-            // 3. Extract audio --------------------------------------------------
-
-            string built_cli2 = CoreMethods.AudioExtraction_BuildCLI_From(destination);
-            CoreMethods.ExecuteCLI_With(built_cli2);
-            //File.Delete(file);
+            if (Uri.IsWellFormedUriString(textBoxInput, UriKind.Absolute))
+            {
+                if (textBoxInput.Contains("youtube.com/watch?"))
+                {
+                    // It must be a Youtube video URL : Download video & Extract audio
+                    DownloadAndExtract();
+                    return;
+                }
+                DisplayErrorMessage("L'URL donnée n'est pas celle d'une vidéo Youtube");
+                return;
+            }
+            DisplayErrorMessage("L'entrée texte ne désigne ni une URL Youtube, ni un fichier vidéo supporté");
         }
-
-
-
 
         #endregion
 
-
+        
 
 
     }
