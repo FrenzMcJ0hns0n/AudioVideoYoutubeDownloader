@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 
@@ -12,7 +13,7 @@ namespace AnotherYoutubeAudioDownloader
     {
 
 
-
+        // Types Génériques, pour constater de la nature du texte, au lieu de faire ces méthodes bool ?
 
         public static bool DropType_isFile(DragEventArgs e)
         {
@@ -52,13 +53,7 @@ namespace AnotherYoutubeAudioDownloader
 
         public static string GetRootDirPath()
         {
-            string rootDirPath = Properties.Settings.Default["RootDirPath"].ToString();
-
-            if (!Directory.Exists(rootDirPath))
-            {
-                return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            }
-            return rootDirPath;
+            return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
         }
         
 
@@ -66,9 +61,7 @@ namespace AnotherYoutubeAudioDownloader
 
         public static void OpenFolder(string contentType)
         {
-            string downloadedContentTypeDir = GetRootDirPath() + "\\Downloaded\\" + contentType;
-
-            Process.Start(downloadedContentTypeDir);
+            Process.Start(GetRootDirPath() + @"\Downloaded\" + contentType);
         }
 
 
@@ -76,12 +69,11 @@ namespace AnotherYoutubeAudioDownloader
 
         public static bool ValidateFileExtension(FileInfo fileInfo)
         {
+            // TODO : Set definitive list of supported file formats
             List<string> acceptedExtensions =
                 new List<string>() { ".avi", ".mkv", ".mov", ".mp4", ".mpeg", ".ogv", ".webm", ".wmv" };
 
-            if (acceptedExtensions.Contains(fileInfo.Extension.ToLowerInvariant()))
-                return true;
-            return false;
+            return (acceptedExtensions.Contains(fileInfo.Extension.ToLowerInvariant()) ? true : false);
         }
 
 
@@ -89,7 +81,7 @@ namespace AnotherYoutubeAudioDownloader
 
         public static void WriteToLog(string content)
         {
-            using (StreamWriter writer = new StreamWriter(GetRootDirPath() + "\\log.txt", true, Encoding.Unicode))
+            using (StreamWriter writer = new StreamWriter(GetRootDirPath() + @"\log.txt", true, Encoding.Unicode))
             {
                 writer.WriteLine(content);
             }

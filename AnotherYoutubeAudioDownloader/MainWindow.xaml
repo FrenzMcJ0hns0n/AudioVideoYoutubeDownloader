@@ -50,7 +50,7 @@
                Grid.ColumnSpan="4"
                HorizontalAlignment="Center"
                VerticalAlignment="Center"
-               Content="URL d'une vidéo Youtube OU lien vers un fichier vidéo"
+               Content="URL d'une vidéo Youtube OU lien complet vers un fichier vidéo"
                />
 
         <TextBox x:Name="TextBox_url" 
@@ -107,20 +107,16 @@
                 Grid.ColumnSpan="6"
                 BorderBrush="DarkGray"
                 BorderThickness="1"
-                />
-        
-        <!-- TODO : Border-innered Grid : to be able to ToolTip the all the border above the items -->
-        
-        <!-- ToolTip="Sélection de la qualité audio :&#x0d;&#x0a;
-        - 128kbps : idéal pour des podcasts&#x0d;&#x0a;
-        - 256kbps = qualité standard pour la musique&#x0d;&#x0a;
-        - 320kbps = qualité maximale&#x0d;&#x0a;&#x0d;&#x0a;
-        Attention, plus la valeur est haute, plus le fichier .mp3 sera volumineux."-->
-        
-        <RadioButton x:Name="RadioButton_mp3_128" 
-                     Grid.Row="7"
-                     Grid.RowSpan="2"
-                     Grid.Column="3"
+                >
+            <Grid ToolTip="Sélection de la qualité audio :&#x0d;&#x0a;- 128kbps : idéal pour du vocal (podcasts, livres audio, etc.)&#x0d;&#x0a;- 256kbps : bonne qualité pour la musique&#x0d;&#x0a;- 320kbps : qualité maximale&#x0d;&#x0a;&#x0d;&#x0a;/!\ Attention, plus la valeur est haute, plus le fichier .mp3 sera volumineux.">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <RadioButton x:Name="RadioButton_mp3_128"
+                     Grid.Column="0"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
                      GroupName="Audiopreset"
@@ -130,11 +126,9 @@
                      Content="128kbps" 
                      Checked="RadioButton_mp3_128_Checked"
                      />
-        <RadioButton x:Name="RadioButton_mp3_256" 
-                     Grid.Row="7"
-                     Grid.RowSpan="2"
-                     Grid.Column="4"
-                     Grid.ColumnSpan="2"
+
+                <RadioButton x:Name="RadioButton_mp3_256"
+                     Grid.Column="1"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
                      GroupName="Audiopreset"
@@ -144,7 +138,8 @@
                      Content="256kbps" 
                      Checked="RadioButton_mp3_256_Checked"
                      />
-        <RadioButton x:Name="RadioButton_mp3_320" 
+
+                <RadioButton x:Name="RadioButton_mp3_320" 
                      Grid.Row="7"
                      Grid.RowSpan="2"
                      Grid.Column="6"
@@ -157,7 +152,10 @@
                      Content="320kbps" 
                      Checked="RadioButton_mp3_320_Checked"
                      />
-        
+
+            </Grid>
+        </Border>
+
         <!--<CheckBox x:Name="CheckBox_KeepSourceVideo"
                   Grid.Row="10" 
                   Grid.Column="3"
@@ -219,9 +217,9 @@
                 Grid.Column="4"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
-                Margin="10,0,0,0"
-                Width="37"
-                Height="37"
+                Margin="20,0,0,0"
+                Width="45"
+                Height="45"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 FontWeight="DemiBold"
@@ -230,7 +228,7 @@
                 ToolTip="Ouvrir le dossier audio"
                 Click="Button_ToAudioFolder_Click"
                 />
-        <Border Grid.Row="14"
+        <!--<Border Grid.Row="14"
                 Grid.Column="4"
                 Grid.ColumnSpan="2"
                 HorizontalAlignment="Center"
@@ -246,16 +244,16 @@
                FontSize="14"
                Content="?"
                />
-        </Border>
+        </Border>-->
         <Button x:Name="Button_ToVideoFolder"
                 Grid.Row="13"
                 Grid.RowSpan="3"
                 Grid.Column="5"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
-                Margin="0,0,10,0"
-                Width="37"
-                Height="37"
+                Margin="0,0,20,0"
+                Width="45"
+                Height="45"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 FontSize="18"

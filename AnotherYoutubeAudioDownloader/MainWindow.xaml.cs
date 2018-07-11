@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -10,7 +10,7 @@ namespace AnotherYoutubeAudioDownloader
 {
     public partial class MainWindow : Window
     {
-
+        
 
 
 
@@ -18,7 +18,7 @@ namespace AnotherYoutubeAudioDownloader
         {
             InitializeComponent();
 
-            DisplayHelpToolTip();
+            //DisplayHelpToolTip();
             LoadSettings();
         }
 
@@ -32,13 +32,13 @@ namespace AnotherYoutubeAudioDownloader
             MessageBox.Show("Erreur : " + content);
         }
 
-        private void DisplayHelpToolTip()
-        {
-            Label_Help.ToolTip = 
-                Properties.Resources.Help_AudioBitrate + 
-                "\n\n----------\n\n" + 
-                Properties.Resources.Help_RetrieveContent;
-        }
+        //private void DisplayHelpToolTip()
+        //{
+        //    Label_Help.ToolTip = 
+        //        Properties.Resources.Help_AudioBitrate + 
+        //        "\n\n----------\n\n" + 
+        //        Properties.Resources.Help_RetrieveContent;
+        //}
         
         private void HandleDrop(DragEventArgs e)
         {
@@ -61,7 +61,7 @@ namespace AnotherYoutubeAudioDownloader
                     TextBox_url.Text = e.Data.GetData(DataFormats.UnicodeText).ToString();
                     return;
                 }
-                DisplayErrorMessage("Doit être spécifié l'URL d'une vidéo Youtube ou le lien complet vers un fichier vidéo.");
+                DisplayErrorMessage("Doit être spécifié soit l'URL d'une vidéo Youtube, soit le lien complet vers un fichier vidéo.");
             }
             catch (Exception ex)
             {
@@ -91,43 +91,70 @@ namespace AnotherYoutubeAudioDownloader
         private void DownloadAndExtract()
         {
             // 1. Download video
-            string video_builtCli = CoreMethods.VideoDownload_BuildCLI_From(TextBox_url.Text);
-            CoreMethods.ExecuteCLI_With(video_builtCli);
+            string video_builtCli = CoreMethods.VideoDownload_BuildCLI_With(TextBox_url.Text);
+            ProcessStartInfo downloadVideo = CoreMethods.PrepareProcess(video_builtCli);
+            Process cmdVideoProcess = Process.Start(downloadVideo);
 
             // 2. Handle "InProgress" file
             string inProgressDir = Properties.Settings.Default["RootDirPath"].ToString() + "\\Downloaded\\InProgress";
             string filepath = "";
             FileInfo fileInfo;
 
-            //TODO : Improve
+            //NOT WORKING : WE HAVE NO CONTROL OVER PYTHON INTERPRETER (which is downloading the file)
+            //while (cmdVideoProcess.MainWindowHandle != IntPtr.Zero) // while ("cmd.exe" is not terminated)
+            //{
+            //    continue;
+            //}
+
             while (filepath == "") // Wait for the file to be fully downloaded (extension = ".part" during download)
             {
+                Cursor = Cursors.Wait;
                 try
                 {
-                    filepath = Directory.GetFiles(inProgressDir)[0]; // fails at first, because file may not have been created yet
+                    string path = Directory.GetFiles(inProgressDir)[0]; // fails at first, because file may not have been created yet -> catch
 
-                    fileInfo = new FileInfo(filepath);
+                    fileInfo = new FileInfo(path);
                     if (fileInfo.Extension.ToLowerInvariant() == ".part")
                         continue;
 
-                    filepath = fileInfo.FullName; // while break
+                    filepath = fileInfo.FullName; // while breaks here
                 }
                 catch
                 {
                     continue;
                 }
             }
-            
+            Cursor = Cursors.Arrow;
+
             // 3. Move downloaded video
             fileInfo = new FileInfo(filepath);
             string filename = fileInfo.Name;
 
-            string videoDestination = Properties.Settings.Default["RootDirPath"].ToString() + "\\Downloaded\\Video\\" + filename;
+            string videoDestination = Properties.Settings.Default["RootDirPath"].ToString() + @"\Downloaded\Video\" + filename;
+            Thread.Sleep(500); // <- weak hack (to be sure \video\file is ready)
             File.Move(filepath, videoDestination);
             
             // 4. Extract audio
-            string audio_builtCli = CoreMethods.AudioExtraction_BuildCLI_From(videoDestination);
-            CoreMethods.ExecuteCLI_With(audio_builtCli);
+            string audio_builtCli = CoreMethods.AudioExtraction_BuildCLI_With(videoDestination);
+            ProcessStartInfo extractAudio = CoreMethods.PrepareProcess(audio_builtCli);
+            Process cmdAudioProcess = Process.Start(extractAudio);
+
+            //int process_id = cmdAudioProcess.Id;
+            //while(Process process = new Process())
+
+            ///NOT WORKING : The process we have control over is the one which tells ffmpeg to work, not ffmpeg itself
+            //while (!cmdAudioProcess.HasExited)
+            //{
+            //    Cursor = Cursors.Wait;
+            //}
+            //Cursor = Cursors.Arrow;
+            //MessageBox.Show("Terminé!");
+
+            ///NOT WORKING : same reason as above
+            //[DllImport("user32.dll")]
+            //static extern int SetWindowText(IntPtr hWnd, string text);
+            //SetWindowText(cmdAudioProcess.MainWindowHandle, "Audio extraction/conversion ...");
+
         }
 
         private void SetAudioQuality(int bitrate)
@@ -310,17 +337,17 @@ namespace AnotherYoutubeAudioDownloader
                 return;
             }
 
-
             if (File.Exists(textBoxInput))
             {
                 if (IOMethods.ValidateFileExtension(new FileInfo(textBoxInput)))
                 {
-                    // It's a video file and it is supported : call audio extraction
-                    string audio_builtCli = CoreMethods.AudioExtraction_BuildCLI_From(textBoxInput);
-                    CoreMethods.ExecuteCLI_With(audio_builtCli);
+                    // It's a video file and it is supported : Do audio extraction
+                    string audio_builtCli = CoreMethods.AudioExtraction_BuildCLI_With(textBoxInput);
+                    Process process = new Process(){ StartInfo = CoreMethods.PrepareProcess(audio_builtCli) };
+                    process.Start();
                     return;
                 }
-                DisplayErrorMessage("Le fichier spécifié n'est pas d'un format supporté");
+                DisplayErrorMessage("Le format du fichier spécifié n'est pas supporté");
                 return;
             }
             
