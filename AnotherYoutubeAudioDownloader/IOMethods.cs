@@ -38,7 +38,7 @@ namespace AnotherYoutubeAudioDownloader
             {
                 string text = e.Data.GetData(DataFormats.UnicodeText).ToString();
                 if (Uri.IsWellFormedUriString(text, UriKind.Absolute))
-                    if (text.Contains("youtube.com/watch"))
+                    if (text.Contains("youtube.com/watch") | text.Contains("youtu.be/"))
                         return true;
                 return false;
             }
@@ -69,7 +69,7 @@ namespace AnotherYoutubeAudioDownloader
 
         public static bool ValidateFileExtension(FileInfo fileInfo)
         {
-            // TODO : Set definitive list of supported file formats
+            // TODO : Set better list of supported file formats
             List<string> acceptedExtensions =
                 new List<string>() { ".avi", ".mkv", ".mov", ".mp4", ".mpeg", ".ogv", ".webm", ".wmv" };
 

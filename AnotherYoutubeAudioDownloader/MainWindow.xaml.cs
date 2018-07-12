@@ -353,7 +353,7 @@ namespace AnotherYoutubeAudioDownloader
             
             if (Uri.IsWellFormedUriString(textBoxInput, UriKind.Absolute))
             {
-                if (textBoxInput.Contains("youtube.com/watch?"))
+                if (textBoxInput.Contains("youtube.com/watch?") | textBoxInput.Contains("youtu.be/"))
                 {
                     // It must be a Youtube video URL : Download video & Extract audio
                     DownloadAndExtract();

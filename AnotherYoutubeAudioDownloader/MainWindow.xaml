@@ -108,7 +108,8 @@
                 BorderBrush="DarkGray"
                 BorderThickness="1"
                 >
-            <Grid ToolTip="Sélection de la qualité audio :&#x0d;&#x0a;- 128kbps : idéal pour du vocal (podcasts, livres audio, etc.)&#x0d;&#x0a;- 256kbps : bonne qualité pour la musique&#x0d;&#x0a;- 320kbps : qualité maximale&#x0d;&#x0a;&#x0d;&#x0a;/!\ Attention, plus la valeur est haute, plus le fichier .mp3 sera volumineux.">
+            <Grid ToolTip="Sélection de la qualité audio :&#x0d;&#x0a;- 128kbps : idéal pour du vocal (podcasts, livres audio, etc.)&#x0d;&#x0a;- 256kbps : bonne qualité pour la musique&#x0d;&#x0a;- 320kbps : qualité maximale&#x0d;&#x0a;&#x0d;&#x0a;/!\ Attention, plus la valeur est haute, plus le fichier .mp3 sera volumineux."
+                  ToolTipService.ShowDuration="25000">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
