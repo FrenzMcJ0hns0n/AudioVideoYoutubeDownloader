@@ -320,6 +320,13 @@ namespace AnotherYoutubeAudioDownloader
             }
 
 
+            if ((int)Properties.Settings.Default["AudioBitrate"] == 0)
+            {
+                MessageBox.Show("Erreur : Qualité audio MP3 non définie");
+                return;
+            }
+
+
             if (File.Exists(textBoxInput))
             {
                 if (IOMethods.ValidateFileExtension(new FileInfo(textBoxInput)))
