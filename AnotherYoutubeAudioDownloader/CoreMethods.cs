@@ -53,7 +53,7 @@ namespace AnotherYoutubeAudioDownloader
             }
             catch (Exception ex)
             {
-                IOMethods.WriteToLog(DateTime.Now + " -> Erreur dans AudioExtraction_BuildCLI_From(string filepath). Exception =\n" + ex.ToString());
+                IOMethods.WriteToLog("Erreur dans AudioExtraction_BuildCLI_From(string filepath). Exception =\n" + ex.ToString());
             }
 
             return commandLine; // TODO : return filename too ?
@@ -68,14 +68,16 @@ namespace AnotherYoutubeAudioDownloader
             {
                 return new ProcessStartInfo("cmd.exe")
                 {
-                    UseShellExecute = false,
+                    Arguments = cli,
                     CreateNoWindow = true,
-                    Arguments = cli
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false
                 };
             }
             catch (Exception ex)
             {
-                IOMethods.WriteToLog(DateTime.Now + " -> Erreur dans ExecuteCLI_With(string cli). Exception =\n" + ex.ToString());
+                IOMethods.WriteToLog("Erreur dans ExecuteCLI_With(string cli). Exception =\n" + ex.ToString());
                 return null;
             }
         }
@@ -112,7 +114,7 @@ namespace AnotherYoutubeAudioDownloader
             }
             catch (Exception ex)
             {
-                IOMethods.WriteToLog(DateTime.Now + " -> Erreur dans VideoDownload_BuildCLI_From(string url). Exception =\n" + ex.ToString());
+                IOMethods.WriteToLog("Erreur dans VideoDownload_BuildCLI_From(string url). Exception =\n" + ex.ToString());
             }
 
             return commandLine;

@@ -19,9 +19,7 @@ namespace AnotherYoutubeAudioDownloader
         {
             try
             {
-                if (File.Exists(((string[])e.Data.GetData(DataFormats.FileDrop))[0]))
-                    return true;
-                return false;
+                return File.Exists(((string[])e.Data.GetData(DataFormats.FileDrop))[0]) ? true : false;
             }
             catch
             {
@@ -83,7 +81,7 @@ namespace AnotherYoutubeAudioDownloader
         {
             using (StreamWriter writer = new StreamWriter(GetRootDirPath() + @"\log.txt", true, Encoding.Unicode))
             {
-                writer.WriteLine(content);
+                writer.WriteLine(DateTime.Now + " -> " + content);
             }
         }
 

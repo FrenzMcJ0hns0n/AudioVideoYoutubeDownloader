@@ -3,15 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AnotherYoutubeAudioDownloader"
         mc:Ignorable="d"
-        Title="Another Youtube audio/video downloader v1.1.1"
+        
+        Title="Another Youtube audio/video downloader v1.1.2"
         Width="800"
-        Height="440"
+        Height="460"
         ResizeMode="CanMinimize"
         MouseDown="Window_MouseDown"
-        BorderThickness="1"
-        BorderBrush="Silver"
         >
 
     <Grid>
@@ -30,7 +28,7 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
-            <RowDefinition Height="1.2*" />
+            <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
             <RowDefinition Height="16" />
         </Grid.RowDefinitions>
@@ -52,7 +50,7 @@
                Grid.ColumnSpan="4"
                HorizontalAlignment="Center"
                VerticalAlignment="Center"
-               Content="URL d'une vidéo Youtube OU lien complet vers un fichier vidéo"
+               Content="URL d'une vidéo YouTube OU lien complet vers un fichier vidéo"
                />
 
         <TextBox x:Name="TextBox_url" 
@@ -223,6 +221,7 @@
                 Margin="20,0,0,0"
                 Width="45"
                 Height="45"
+                Background="WhiteSmoke"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 FontWeight="DemiBold"
@@ -231,23 +230,6 @@
                 ToolTip="Ouvrir le dossier audio"
                 Click="Button_ToAudioFolder_Click"
                 />
-        <!--<Border Grid.Row="14"
-                Grid.Column="4"
-                Grid.ColumnSpan="2"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Stretch"
-                Width="29"
-                BorderThickness="1"
-                BorderBrush="LightGray"
-                >
-            <Label x:Name="Label_Help"
-               HorizontalContentAlignment="Center"
-               VerticalContentAlignment="Center"
-               FontWeight="DemiBold"
-               FontSize="14"
-               Content="?"
-               />
-        </Border>-->
         <Button x:Name="Button_ToVideoFolder"
                 Grid.Row="13"
                 Grid.RowSpan="3"
@@ -257,6 +239,7 @@
                 Margin="0,0,20,0"
                 Width="45"
                 Height="45"
+                Background="WhiteSmoke"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
                 FontSize="18"
@@ -264,6 +247,5 @@
                 ToolTip="Ouvrir le dossier vidéo"
                 Click="Button_ToVideoFolder_Click"
                 />
-
     </Grid>
 </Window>
