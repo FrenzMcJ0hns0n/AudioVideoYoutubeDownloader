@@ -39,7 +39,7 @@ namespace AnotherYoutubeAudioDownloader
                 // -vn        -> don't include video
 
                 // In cmd.exe, the command line would be :
-                // start "" "path/to/youtube-dl.exe" [-options] "path/as/destination/nom.extension" <youtube video url>
+                // start "" "path/to/youtube-dl.exe" [-options] "path/as/destination/name.extension" <youtube video url>
 
                 commandLine = String.Format(
                     "/c start \"\" \"{0}\\bin\\ffmpeg.exe\" -i \"{1}\" -f mp3 -ab {2} -vn \"{3}\\Downloaded\\Audio\\{4}.mp3\"",

@@ -5,11 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AnotherYoutubeAudioDownloader"
         mc:Ignorable="d"
-        Title="Another Youtube audio/video downloader v1.1"
+        Title="Another Youtube audio/video downloader v1.1.1"
         Width="800"
         Height="440"
         ResizeMode="CanMinimize"
         MouseDown="Window_MouseDown"
+        BorderThickness="1"
+        BorderBrush="Silver"
         >
 
     <Grid>

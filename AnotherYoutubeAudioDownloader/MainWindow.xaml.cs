@@ -337,6 +337,7 @@ namespace AnotherYoutubeAudioDownloader
                 return;
             }
 
+
             if (File.Exists(textBoxInput))
             {
                 if (IOMethods.ValidateFileExtension(new FileInfo(textBoxInput)))
@@ -351,6 +352,7 @@ namespace AnotherYoutubeAudioDownloader
                 return;
             }
             
+
             if (Uri.IsWellFormedUriString(textBoxInput, UriKind.Absolute))
             {
                 if (textBoxInput.Contains("youtube.com/watch?") | textBoxInput.Contains("youtu.be/"))
